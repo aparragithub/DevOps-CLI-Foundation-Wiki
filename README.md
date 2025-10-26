@@ -1,16 +1,16 @@
-# 👨‍💻 DevOps-CLI-Foundation-Wiki: La Wiki de Angel Parra
+# 🚀 DevOps-CLI-Foundation-Wiki: Ingeniería de Sistemas y Automatización
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Bienvenido a mi repositorio personal de conocimiento y fundamentos de la línea de comandos (CLI) y prácticas de **DevOps**. Este proyecto es mi base de conocimiento (`Knowledge Base`) para el uso diario y un recurso didáctico para explicar conceptos clave de infraestructura y automatización.
+Bienvenido a mi repositorio personal de **Ingeniería de Sistemas y Prácticas de DevOps**. Este proyecto es mi **Base de Conocimiento Central** (`Knowledge Base`) y mi guía de referencia para el uso diario en tareas de automatización, gestión de infraestructura y desarrollo.
 
 ---
 
 ## 🎯 Objetivo del Proyecto
 
-Centralizar, en un formato conciso y de fácil consumo (Markdown), los comandos, flujos de trabajo y conceptos esenciales de la pila de tecnologías modernas de DevOps, desde el sistema operativo base hasta la Infraestructura como Código (IaC).
+Centralizar, en un formato conciso y de fácil consumo (Markdown), los comandos, flujos de trabajo, y conceptos esenciales de toda la **Pila Tecnológica de DevOps**: desde el sistema operativo base (Linux) hasta la orquestación avanzada (Kubernetes) y la Infraestructura como Código (Terraform).
 
-**Autor:** [Angel Parra](https://github.com/AngelParra) *(Puede cambiar el enlace si su perfil de GitHub no es su nombre exacto)*
+**Autor:** [Angel Parra](https://github.com/AngelParra)
 
 ---
 
