@@ -145,3 +145,71 @@ Los enlaces permiten crear referencias o accesos a archivos en diferentes ubicac
 | :--- | :--- | :--- |
 | **Sintaxis Estándar** | `comando -opciones argumentos` | La consistencia permite el *scripting* avanzado. |
 | **Página de Manual** | `man [comando]` | Es la documentación **definitiva** de cualquier herramienta en el sistema. |
+
+---
+
+## 4. Manipulación de Archivos y Directorios
+
+Esta sección cubre los comandos fundamentales para crear, copiar, mover y borrar archivos y directorios. El dominio de sus opciones es crucial para el *scripting* profesional y el mantenimiento de la integridad del sistema.
+
+### A. Creación y Organización de Directorios (`mkdir`)
+
+| Comando | Función | Opciones Clave | Propósito Profesional |
+| :--- | :--- | :--- | :--- |
+| `mkdir directorio...` | Crea uno o más directorios. | Sin opciones, solo crea el directorio si el padre ya existe. | Base de la estructuración de proyectos. |
+| `mkdir -p ruta/a/nuevo/dir` | Crea directorios **padres** según se necesite. | **`-p` (parents)** | **CRÍTICO** para garantizar que la estructura completa de un proyecto o de un *build* se cree con una sola línea de *script*. |
+| `mkdir -v directorio` | Crea directorios y **muestra un mensaje** por cada uno. | **`-v` (verbose)** | Útil para *scripts* que necesitan registrar o auditar las acciones que realizan. |
+
+### B. Copia de Archivos y Estructuras (`cp`)
+
+El comando **`cp`** (copy) es la herramienta para duplicar archivos y directorios.
+
+| Comando/Opción | Función | Propósito Profesional |
+| :--- | :--- | :--- |
+| `cp item1 item2` | Copia el `item1` al `item2`. Si `item2` es un directorio, copia el `item1` dentro. | Base de las operaciones de despliegue y *staging*. |
+| **`cp -a`** | **Modo Archivo** (Equivalente a `-dR --preserve=all`). | **ESENCIAL** al copiar código o datos de configuración entre entornos, ya que **mantiene permisos, dueño, *timestamps*** y la estructura de enlaces. |
+| **`cp -r`** | Copia recursivamente directorios y su contenido. | Requerido para copiar cualquier directorio. |
+| **`cp -i`** | Pregunta de forma interactiva **antes de sobrescribir** un archivo existente. | Capa de seguridad básica para evitar sobrescrituras accidentales fuera de la automatización. |
+| **`cp -u`** | Copia archivos **solo si** el archivo fuente es **más nuevo** que el destino. | **Clave** para actualizaciones incrementales y optimizar el tiempo de ejecución en *scripts* de sincronización. |
+| **`cp -v`** | Muestra los nombres de los archivos a medida que se copian. | Útil para depuración y auditoría visual de *scripts*. |
+
+### C. Mover y Renombrar Elementos (`mv`)
+
+El comando **`mv`** (move) se utiliza para mover archivos a una nueva ubicación o para renombrarlos (al moverlos al mismo directorio, pero con un nombre diferente).
+
+| Comando/Opción | Función | Propósito Profesional |
+| :--- | :--- | :--- |
+| `mv item1 item2` | **Renombra** `item1` a `item2` (si están en la misma ruta) o lo **mueve** (si `item2` es una ruta diferente). | **Versionamiento de Configuración:** `mv config.yaml config.yaml.bak`. |
+| **`mv -i`** | Pregunta de forma interactiva **antes de sobrescribir**. | Capa de seguridad importante. |
+| **`mv -u`** | Mueve solo si el archivo fuente es **más nuevo** que el archivo de destino o si el destino no existe. | Evita sobrescribir archivos más recientes en el destino. |
+
+### D. Eliminación Permanente (`rm`)
+
+El comando **`rm`** (remove) se usa para borrar archivos y directorios de forma **permanente**.
+
+| Comando/Opción | Función | Advertencia Crítica DevOps |
+| :--- | :--- | :--- |
+| `rm archivo...` | Borra archivos. | **¡No hay papelera de reciclaje!** Úselo con cautela. |
+| **`rm -r`** | Borra un directorio y todo su contenido de forma **recursiva**. | Requerido para borrar directorios (ej. `rm -r temp_dir/`). |
+| **`rm -f`** | **Fuerza** la eliminación de archivos y directorios sin preguntar, incluso si están protegidos contra escritura. | **PELIGROSO.** Solo úselo en *scripts* de limpieza que requieren ejecución no interactiva (non-interactive) donde el riesgo es aceptable. |
+| **`rm -i`** | Pregunta por cada archivo antes de eliminarlo. | Útil para la limpieza manual de directorios desconocidos. |
+
+### E. Uso de Comodines (Wildcards) - CRÍTICO para el Scripting
+
+Los comodines permiten seleccionar múltiples archivos basados en patrones de nombre. La **Shell** (ej. `bash`) realiza la **expansión** del comodín a una lista de nombres de archivo **antes** de que el comando se ejecute.
+
+| Comodín | Función Detallada | Ejemplos de Aplicación DevOps |
+| :--- | :--- | :--- |
+| **`*`** | Coincide con **cero o más** caracteres. | `rm /var/log/httpd/*.log` (Elimina todos los logs). |
+| **`?`** | Coincide con **exactamente un** carácter. | `mv server?.cfg config_v?.cfg` (Renombra archivos con un solo dígito/letra). |
+| **`[]`** | Coincide con **cualquier único carácter** contenido dentro de los corchetes o un rango. | `rm deploy[0-9].sh` (Borra *scripts* de despliegue numerados del 0 al 9). |
+| **`{}`** | **Expansión de Llave** (No es un comodín, pero es similar) | Genera una lista de cadenas separadas por coma para crear secuencias de nombres. | `mkdir {dev,test,prod}/certs` (Crea directorios `dev/certs`, `test/certs`, `prod/certs` con un solo comando). |
+
+### F. Enlaces del Sistema de Archivos (`ln` - Revisión)
+
+El comando **`ln`** (link) es fundamental para la gestión de dependencias y versiones (ver Sección 3.B para más detalle).
+
+| Tipo de Enlace | Comando | Propósito DevOps |
+| :--- | :--- | :--- |
+| **Blando/Simbólico** (`Symlink`) | `ln -s archivo_original nuevo_nombre` | Crea un puntero para gestionar dependencias de *software* (ej. `/usr/local/bin/python` apuntando a la versión más reciente). |
+| **Duro** (`Hard Link`) | `ln archivo_original nuevo_nombre` | Crea una referencia adicional al mismo bloque de datos (*inode*). |
