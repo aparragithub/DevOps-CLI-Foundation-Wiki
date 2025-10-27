@@ -233,6 +233,8 @@ El sistema de manuales es la **Fuente de Verdad (Source of Truth)** del sistema 
 | **`whatis [comando]`** | Muestra una **descripción muy breve** (una sola línea) del comando. | Rápida verificación de la función de un comando desconocido sin abrir el manual completo. |
 | **`info [comando]`** | Muestra información de ayuda en formato **GNU Hypertext** (navegable). | Alternativa a `man`; proporciona una estructura de árbol navegable que a veces es más clara para programas complejos como `tar`. |
 
+---
+
 ## 6. Entrada/Salida Estándar y Tuberías (Pipelines)
 
 La habilidad para conectar comandos y manipular el flujo de datos es la base del **Shell Scripting** eficiente y modular.
@@ -249,7 +251,7 @@ Linux utiliza tres flujos de datos básicos. Es crucial conocer sus **Descriptor
 
 ### B. Redirección (Redirection)
 
-La redirección permite cambiar el destino (o la fuente) de los flujos de I/O por defecto.
+La redirección permite cambiar el destino (o la fuente) de los flujos de I/O por defecto, conectando un flujo a un **archivo en el sistema de archivos**.
 
 | Operador | Función | Propósito DevOps y Ejemplos |
 | :--- | :--- | :--- |
@@ -266,7 +268,18 @@ El operador de tubería (`|`) es la herramienta más importante para construir *
 * **Filosofía:** Permite encadenar pequeños programas especializados (filtros) para realizar tareas complejas en una sola línea.
 * **Ejemplo:** `ps aux | grep "nginx" | wc -l` (Lista procesos, filtra el de *nginx*, y cuenta el número de líneas/instancias encontradas).
 
-### D. Comandos Esenciales de Filtro (Filters)
+### D. Distinción Crítica: Redirección (`>`) vs. Tubería (`|`)
+
+Esta es la distinción fundamental para el *shell scripting*:
+
+| Elemento | Tubería (`|`) | Redirección (`>`) |
+| :--- | :--- | :--- |
+| **Propósito** | Conectar **procesos** entre sí. | Conectar un **proceso con un archivo** en el sistema de archivos. |
+| **Destino** | El **STDIN (Entrada)** del siguiente comando. | El **Sistema de Archivos** (un archivo). |
+| **Naturaleza** | **Flujo de datos** en la memoria (inter-proceso). | **Almacenamiento permanente** en disco. |
+| **Uso Común** | **Encadenar** comandos para transformar datos. | **Registrar** datos de forma permanente (logs, salidas). |
+
+### E. Comandos Esenciales de Filtro (Filters)
 
 Los comandos de filtro procesan datos que reciben por STDIN y envían la salida modificada por STDOUT. Son el motor de cualquier *pipeline* de procesamiento de texto.
 
@@ -277,6 +290,16 @@ Los comandos de filtro procesan datos que reciben por STDIN y envían la salida 
 | **`uniq`** | Reporta u omite líneas duplicadas **adyacentes**. | `-c` (muestra el conteo de repeticiones) | Limpiar listas de elementos duplicados (requiere que la entrada esté ordenada con `sort` primero). |
 | **`grep`** | Imprime líneas que coincidan con un patrón (expresión regular). | `-v` (invierte la coincidencia), `-i` (ignora mayúsculas/minúsculas) | **El filtro más usado.** Aislar y mostrar solo las líneas relevantes de un *log* grande. |
 | **`wc`** | Imprime el número de líneas, palabras y bytes. | `-l` (solo líneas), `-w` (solo palabras) | **Monitoreo Rápido:** Contar cuántas líneas/errores hay en un *log* (`grep ERROR log.txt | wc -l`). |
-| **`head`** | Imprime la **primera parte** de un archivo (por defecto, las 10 primeras líneas). | `-n N` (imprime las primeras N líneas) | Útil para inspecciones rápidas de configuración (`head -n 5 config.yaml`). |
-| **`tail`** | Imprime la **última parte** de un archivo (las 10 últimas líneas). | `-n N` (imprime las últimas N líneas), **`-f` (sigue el archivo en tiempo real)** | **CRÍTICO para Monitoreo:** El *flag* `-f` es esencial para seguir archivos de *log* que se actualizan constantemente en producción. |
+| **`head`** | Imprime la **primera parte** de un archivo. | `-n N` (imprime las primeras N líneas) | Útil para inspecciones rápidas de configuración (`head -n 5 config.yaml`). |
+| **`tail`** | Imprime la **última parte** de un archivo. | `-n N` (imprime las últimas N líneas), **`-f` (sigue el archivo en tiempo real)** | **CRÍTICO para Monitoreo:** El *flag* `-f` es esencial para seguir archivos de *log* que se actualizan constantemente en producción. |
 | **`tee`** | Lee de STDIN y escribe simultáneamente en STDOUT **y en uno o más archivos**. | `-a` (añade en lugar de sobrescribir) | **Duplicación de Output:** Se usa a menudo con `sudo` para escribir en archivos protegidos (`comando | sudo tee /etc/config`). También permite ver la salida mientras se registra en un archivo. |
+
+### F. Pipelines Avanzados para Diagnóstico (Escenarios DevOps) 🚀
+
+Las interconexiones complejas permiten el análisis rápido de grandes volúmenes de datos, una habilidad vital para la **observabilidad** del sistema operativo.
+
+| Objetivo | Cadena de Comandos | Explicación del Flujo de Datos |
+| :--- | :--- | :--- |
+| **Encontrar los 10 errores más comunes en un *log*** | `cat app.log \| grep "ERROR" \| sort \| uniq -c \| sort -nr \| head -n 10` | 1. **`cat`** envía el *log*. 2. **`grep`** aísla solo las líneas de error. 3. **`sort`** agrupa las líneas idénticas (requisito para `uniq`). 4. **`uniq -c`** cuenta la repetición de cada línea de error. 5. **`sort -nr`** reordena por conteo (numérico, reverso). 6. **`head`** muestra las 10 entradas principales. |
+| **Listar puertos abiertos por procesos activos (Netstat + Filtros)** | `netstat -tuln \| grep "LISTEN" \| awk '{print $4}' \| cut -d: -f2` | 1. **`netstat`** lista puertos TCP/UDP abiertos (`-tuln`). 2. **`grep`** aísla solo los puertos que están "escuchando" (`LISTEN`). 3. **`awk`** se usa como procesador de columnas para extraer la columna del puerto. 4. **`cut`** se usa para obtener solo el número de puerto, usando `:` como delimitador. |
+| **Monitoreo de Recursos por Usuario (Top + Filtros)** | `top -b -n 1 \| tail -n +8 \| awk '{print $1, $10}' \| grep -v "0.0"` | 1. **`top -b -n 1`** toma una sola instantánea en modo *batch* (`-b`). 2. **`tail -n +8`** elimina los encabezados de `top`. 3. **`awk`** selecciona y muestra el nombre de usuario (`$1`) y el uso de CPU (`$10`). 4. **`grep -v`** filtra (invierte la coincidencia) cualquier proceso que use 0.0% de CPU. |
