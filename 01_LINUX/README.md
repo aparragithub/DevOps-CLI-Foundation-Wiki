@@ -130,12 +130,14 @@ $$\text{chmod} \underbrace{D_1}_{\text{Dueño}} \underbrace{D_2}_{\text{Grupo}} 
 | **Lectura, Escritura y Ejecución (Total)** | $4 + 2 + 1$ | **7** | `rwx` |
 | **Solo Lectura** | $4 + 0 + 0$ | **4** | `r--` |
 
-### B. Enlaces del Sistema de Archivos (Gestión de Dependencias)
+### B. Enlaces del Sistema de Archivos (Gestión de Dependencias y Versiones)
 
-| Tipo de Enlace | Comando | Propósito DevOps |
-| :--- | :--- | :--- |
-| **Blando/Simbólico (`Soft/Symlink`)** | `ln -s archivo_original nuevo_nombre` | Crea un **puntero** al archivo original. Es clave para apuntar a la versión más reciente de una herramienta instalada en el sistema. |
-| **Duro (`Hard Link`)** | `ln archivo_original nuevo_nombre` | Crea una **referencia adicional** al mismo bloque de datos (*inode*). |
+Los enlaces permiten crear referencias o accesos a archivos en diferentes ubicaciones sin duplicar el contenido. Son esenciales para la gestión de dependencias y versiones en instalaciones manuales.
+
+| Tipo de Enlace | Comando | Propiedad Clave | Propósito DevOps y Limitaciones |
+| :--- | :--- | :--- | :--- |
+| **Blando / Simbólico** (`Soft/Symlink`) | `ln -s archivo_original nuevo_nombre` | Crea un **puntero** al archivo original. Es un archivo nuevo con su propio *inode*. Si el original se borra, el *symlink* se rompe (*dangling link*). | **Uso Principal:** Gestión de versiones. Por ejemplo, apuntar `/usr/local/bin/python` a `/opt/python/3.11/bin/python`. **Funciona entre sistemas de archivos y en directorios remotos.** |
+| **Duro** (`Hard Link`) | `ln archivo_original nuevo_nombre` | Crea una **referencia adicional** al **mismo bloque de datos (mismo *inode*)**. El archivo original y el enlace duro son, a nivel de sistema de archivos, el mismo archivo. | **Uso Principal:** Copias de seguridad o mantener múltiples referencias locales. **Limitación:** Solo funciona dentro del **mismo sistema de archivos** (partición) y no puede enlazar directorios. |
 
 ### C. Arquitectura de Comandos y Documentación
 
