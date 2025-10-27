@@ -54,20 +54,37 @@ La FHS clasifica el contenido en dos ejes, cruciales para el diseño de infraest
 
 ### A. Comandos de Movimiento y Ubicación
 
-| Comando | Función | Notas Clave |
-| :--- | :--- | :--- |
-| `pwd` | Muestra el **Directorio de Trabajo Actual** (Print Working Directory). | Útil para saber dónde se encuentra su *script*. |
-| `cd [dir]` | Cambia de Directorio. | `cd ..` (directorio padre); `cd -` (directorio anterior). |
-| `ls` | Lista el contenido de un directorio (List). | Base de la exploración. |
+La habilidad para moverse rápidamente por el sistema de archivos es crítica para el *scripting* y la gestión remota de servidores.
 
-### B. Inspección del Contenido de Archivos 🔍
+| Comando | Función | Notas Clave (Rutas y Atajos) |
+| :--- | :--- | :--- |
+| `pwd` | Muestra el **Directorio de Trabajo Actual** (*Print Working Directory*). | Fundamental para verificar la ubicación del contexto de ejecución de un *script*. |
+| `cd [ruta]` | Cambia de Directorio (*Change Directory*). | Acepta **rutas absolutas** (inician en `/`, ej. `/etc/nginx`) y **rutas relativas** (inician en el directorio actual, ej. `../logs`). |
+| **`cd ~`** | Atajo rápido para ir al **directorio personal del usuario actual**. | **CRÍTICO** para acceder rápidamente a la configuración personal (`.bashrc`, `.ssh`). |
+| **`cd -`** | Vuelve al **directorio anterior** visitado. | Ideal para alternar rápidamente entre dos directorios de trabajo. |
+| **`cd .`** | Se refiere al **directorio actual**. Se usa frecuentemente en comandos como `./script.sh` para indicar el *script* en la ruta actual, evitando errores de PATH. |
+
+### B. Inspección del Sistema de Archivos: El Comando `ls`
+
+El comando `ls` (*list*) es la herramienta esencial para visualizar el contenido de los directorios. Un ingeniero DevOps debe usarlo siempre con opciones para obtener datos relevantes (permisos, tamaño, fecha).
+
+| Opción | Nombre | Descripción y Caso de Uso en DevOps | Demostración de Salida |
+| :--- | :--- | :--- | :--- |
+| **`-l`** | Formato **Largo** | Muestra metadatos cruciales: permisos (`rwx`), número de enlaces, **propietario**, **grupo**, tamaño y fecha de modificación. **CRÍTICO** para auditoría de seguridad y permisos. | `-rw-r--r-- 1 root root 4096 Oct 15 10:30 config.yml` |
+| **`-a`** | **Todos** (*All*) | Lista **todos** los archivos, incluyendo los archivos ocultos (archivos de configuración que comienzan con un punto, ej. `.ssh`, `.git`). | `.`, `..`, `.gitignore`, `.env` |
+| **`-h`** | **Legible por Humanos** (*Human*) | Muestra el tamaño del archivo en unidades fáciles de leer (ej. `1.5M`, `4G`) en lugar de bytes. **Siempre usado con `-l`** (`ls -lh`). | `4.0K` en lugar de `4096` |
+| **`-t`** | **Tiempo** | Ordena los archivos por la **fecha de modificación** más reciente, primero. | Útil para ver qué archivos o *logs* fueron modificados por última vez. |
+| **`-r`** | **Reversa** (*Reverse*) | Invierte el orden de la lista. Usado con `-t` (`ls -ltr`) para ver los archivos **más antiguos** primero. | Los archivos más antiguos aparecen al inicio de la lista. |
+| **`-R`** | **Recursivo** | Lista el contenido del directorio actual **y de todos sus subdirectorios**. | Útil para inspecciones de estructura completas, pero consume muchos recursos en directorios grandes. |
+
+### C. Inspección del Contenido de Archivos 🔍
 
 | Comando | Función | Notas DevOps |
 | :--- | :--- | :--- |
 | `file [nombre_archivo]` | Muestra el **tipo de datos** real que contiene el archivo. | Esencial para identificar binarios, *scripts* o archivos de datos desconocidos. |
 | `less [nombre_archivo]` | Abre el archivo y permite la paginación y búsqueda. | **Ideal para logs grandes**. Es más eficiente que `cat` ya que no carga todo el archivo en memoria. |
 
-### C. Comandos de Diagnóstico Rápido 📊
+### D. Comandos de Diagnóstico Rápido 📊
 
 | Comando | Función (Monitoreo Operativo) | Notas |
 | :--- | :--- | :--- |
