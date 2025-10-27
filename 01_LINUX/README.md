@@ -205,11 +205,30 @@ Los comodines permiten seleccionar múltiples archivos basados en patrones de no
 | **`[]`** | Coincide con **cualquier único carácter** contenido dentro de los corchetes o un rango. | `rm deploy[0-9].sh` (Borra *scripts* de despliegue numerados del 0 al 9). |
 | **`{}`** | **Expansión de Llave** (No es un comodín, pero es similar) | Genera una lista de cadenas separadas por coma para crear secuencias de nombres. | `mkdir {dev,test,prod}/certs` (Crea directorios `dev/certs`, `test/certs`, `prod/certs` con un solo comando). |
 
-### F. Enlaces del Sistema de Archivos (`ln` - Revisión)
+---
 
-El comando **`ln`** (link) es fundamental para la gestión de dependencias y versiones (ver Sección 3.B para más detalle).
+## 5. Auditoría, Eficiencia y Documentación del Shell
 
-| Tipo de Enlace | Comando | Propósito DevOps |
+Para un ingeniero DevOps, la eficiencia y la habilidad para depurar un entorno son tan importantes como el *scripting*. Esta sección cubre las herramientas para auditar el Shell, optimizar la productividad y acceder a la documentación técnica.
+
+### A. Metacomandos: Auditoría e Interpretación del Shell
+
+Estos comandos se usan para entender **cómo** el Shell (`bash`) está resolviendo una instrucción. Esto es vital para depurar problemas causados por *aliases* o conflictos de *binarios* en la variable `PATH`.
+
+| Comando | Función Principal | Implicación Crítica para el Scripting y DevOps |
 | :--- | :--- | :--- |
-| **Blando/Simbólico** (`Symlink`) | `ln -s archivo_original nuevo_nombre` | Crea un puntero para gestionar dependencias de *software* (ej. `/usr/local/bin/python` apuntando a la versión más reciente). |
-| **Duro** (`Hard Link`) | `ln archivo_original nuevo_nombre` | Crea una referencia adicional al mismo bloque de datos (*inode*). |
+| **`type [comando]`** | Indica **qué tipo de comando es**: un *alias*, una función interna (*builtin*) del Shell, o un programa ejecutable externo. | **Depuración:** Permite detectar si un *script* está fallando porque un comando está siendo interceptado por un *alias* no deseado o una función de Shell local. |
+| **`which [comando]`** | Muestra la **ruta completa** del programa ejecutable que el Shell va a llamar. | **Auditoría de Entorno:** Esencial para asegurar que se está utilizando la versión correcta de una herramienta (ej. verificar si el `kubectl` que se ejecuta es la versión global o una versión instalada localmente en `/usr/local/bin`). |
+| **`alias [nombre='comando']`** | Crea un **alias** (un atajo) para un comando más largo o para agregar opciones por defecto. | **Eficiencia y Seguridad:** Permite optimizar comandos de uso frecuente (ej. `alias k='kubectl'`) o agregar opciones de seguridad por defecto (ej. `alias rm='rm -i'`). Los *aliases* se cargan desde archivos como `.bashrc`. |
+| **`help [comando]`** | Ofrece ayuda concisa para las **funciones internas del Shell** (`cd`, `type`, `alias`, etc.). | Acceso rápido a la sintaxis sin necesidad de cargar la página completa de `man`. |
+
+### B. Acceso a la Documentación Técnica (El Manual)
+
+El sistema de manuales es la **Fuente de Verdad (Source of Truth)** del sistema Linux.
+
+| Comando | Función | Propósito DevOps |
+| :--- | :--- | :--- |
+| **`man [comando]`** | Muestra la **página completa del manual** de un comando. | La documentación **definitiva**. Contiene todas las opciones, sintaxis, códigos de salida y ejemplos. Se usa a diario para verificar sintaxis detallada. |
+| **`apropos [palabra_clave]`** | Muestra una lista de comandos y sus descripciones que **coinciden con una palabra clave**. | **Exploración:** Útil cuando se sabe lo que se necesita hacer (ej. cifrar), pero no se recuerda el nombre exacto del comando (ej. `apropos encryption`). |
+| **`whatis [comando]`** | Muestra una **descripción muy breve** (una sola línea) del comando. | Rápida verificación de la función de un comando desconocido sin abrir el manual completo. |
+| **`info [comando]`** | Muestra información de ayuda en formato **GNU Hypertext** (navegable). | Alternativa a `man`; proporciona una estructura de árbol navegable que a veces es más clara para programas complejos como `tar`. |
