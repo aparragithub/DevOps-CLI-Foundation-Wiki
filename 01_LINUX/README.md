@@ -30,14 +30,14 @@ La siguiente tabla detalla los directorios más relevantes y su ciclo de vida, i
 | **`/proc`** | Sistema de archivos **virtual** del *kernel* en tiempo real. | Información de procesos, memoria, CPU. | Virtual |
 | **`/dev`** | Archivos especiales de **dispositivos** (*hardware*). | Discos duros (`sda`), memoria (`null`, `zero`). | Especial |
 
-### B. Clasificación FHS y sus Implicaciones Detalladas
+### B. Clasificación FHS y sus Implicaciones Detalladas (Nivel Avanzado)
 
-La FHS clasifica el contenido en dos ejes, cruciales para el diseño de infraestructura:
+La FHS clasifica el contenido en dos ejes, cruciales para el diseño de infraestructura. Comprender esta distinción es la base para diseñar sistemas **inmutables** y seguros (ej. Contenedores y VMs).
 
-| Principio | Definición | Implicación Crítica para DevOps |
+| Principio | Definición Detallada (FHS) | Implicación Crítica para DevOps |
 | :--- | :--- | :--- |
-| **Estático vs. Variable** | **Estático:** Contenido que no cambia sin intervención administrativa (ej. `/usr/bin`). | Los directorios estáticos se montan en modo **Solo Lectura (Read-Only)** en contenedores y VMs para reforzar la **seguridad** y la **inmutabilidad**. |
-| **Compartible vs. No Compartible** | **Compartible:** Puede ser usado por múltiples *hosts* (ej. `/usr`). | Permite la centralización de recursos (ej. vía NFS) frente a datos específicos del entorno (ej. `/etc`). |
+| **Estático vs. Variable** | **Estático:** Contenido que **nunca** cambia sin una intervención explícita del administrador (ej. binarios en `/usr/bin`). **Variable:** Contenido que cambia constantemente durante la operación normal del sistema (ej. *logs* en `/var/log` o datos de sesiones). | **Estático** se monta **Solo Lectura (Read-Only)** en contenedores para asegurar la **inmutabilidad** y seguridad. **Variable** (ej. `/var`) debe ser la única sección con permisos de escritura, y requiere ser **gestionada externamente** (Volúmenes Persistentes en Kubernetes o *logs* centralizados) para evitar la pérdida de datos al apagar el *host*. |
+| **Compartible vs. No Compartible** | **Compartible:** Contenido que puede ser accedido sin conflicto por múltiples *hosts* o arquitecturas (ej. binarios de `/usr`). **No Compartible:** Contenido único y específico de un solo *host* (ej. configuraciones en `/etc` o *logs* en `/var`). | El contenido **No Compartible** debe ser gestionado activamente por **Herramientas de Configuración** (Ansible, Chef) para inyectar configuraciones únicas a cada servidor. Esto garantiza que la identidad del *host* y sus datos permanezcan aislados. |
 
 ### C. Zonas de Instalación y Archivos Temporales (Detalle Crítico)
 
