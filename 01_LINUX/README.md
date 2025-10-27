@@ -232,3 +232,51 @@ El sistema de manuales es la **Fuente de Verdad (Source of Truth)** del sistema 
 | **`apropos [palabra_clave]`** | Muestra una lista de comandos y sus descripciones que **coinciden con una palabra clave**. | **Exploración:** Útil cuando se sabe lo que se necesita hacer (ej. cifrar), pero no se recuerda el nombre exacto del comando (ej. `apropos encryption`). |
 | **`whatis [comando]`** | Muestra una **descripción muy breve** (una sola línea) del comando. | Rápida verificación de la función de un comando desconocido sin abrir el manual completo. |
 | **`info [comando]`** | Muestra información de ayuda en formato **GNU Hypertext** (navegable). | Alternativa a `man`; proporciona una estructura de árbol navegable que a veces es más clara para programas complejos como `tar`. |
+
+## 6. Entrada/Salida Estándar y Tuberías (Pipelines)
+
+La habilidad para conectar comandos y manipular el flujo de datos es la base del **Shell Scripting** eficiente y modular.
+
+### A. Flujos de Entrada/Salida Estándar (I/O)
+
+Linux utiliza tres flujos de datos básicos. Es crucial conocer sus **Descriptores de Archivo (FD)** para redireccionar errores o datos con precisión:
+
+| Flujo | Descriptor (FD) | Propósito |
+| :--- | :--- | :--- |
+| **STDOUT** | 1 | Salida **Estándar** (Resultados normales del programa). |
+| **STDERR** | 2 | Salida de **Error** (Mensajes de diagnóstico y errores). |
+| **STDIN** | 0 | Entrada **Estándar** (Datos que el programa lee). |
+
+### B. Redirección (Redirection)
+
+La redirección permite cambiar el destino (o la fuente) de los flujos de I/O por defecto.
+
+| Operador | Función | Propósito DevOps y Ejemplos |
+| :--- | :--- | :--- |
+| **`>`** | Redirección de **Salida** (Sobrescribe). | `comando > archivo.log`: Crea o **sobrescribe** el archivo con el STDOUT del comando. |
+| **`>>`** | Redirección de **Adición**. | `comando >> archivo.log`: **Añade** la salida al final del archivo existente. Esencial para logs continuos. |
+| **`2>`** | Redirección de **Error**. | `comando 2> errores.log`: Redirige el flujo **STDERR** (FD 2) a un archivo. **Clave para aislar errores en la automatización.** |
+| **`&>`** | Redirección de **Todo**. | `comando &> todo.log`: Redirige **STDOUT (1) y STDERR (2)** al mismo archivo. |
+
+### C. Tuberías (Piping - `|`)
+
+El operador de tubería (`|`) es la herramienta más importante para construir *pipelines* modulares.
+
+* **Función:** Conecta el **STDOUT** del comando de la izquierda al **STDIN** del comando de la derecha.
+* **Filosofía:** Permite encadenar pequeños programas especializados (filtros) para realizar tareas complejas en una sola línea.
+* **Ejemplo:** `ps aux | grep "nginx" | wc -l` (Lista procesos, filtra el de *nginx*, y cuenta el número de líneas/instancias encontradas).
+
+### D. Comandos Esenciales de Filtro (Filters)
+
+Los comandos de filtro procesan datos que reciben por STDIN y envían la salida modificada por STDOUT. Son el motor de cualquier *pipeline* de procesamiento de texto.
+
+| Comando | Función | Opciones Clave | Caso de Uso DevOps y Ejemplos |
+| :--- | :--- | :--- | :--- |
+| **`cat`** | Concatena archivos. | `-n` (numera líneas) | Se usa principalmente para **enviar el contenido de un archivo** a un *pipeline* (`cat file.txt | ...`). |
+| **`sort`** | Ordena las líneas de texto. | `-r` (reversa), `-n` (numérica) | Ordenar listas de elementos (ej. IPs o IDs) antes de procesarlos o compararlos. |
+| **`uniq`** | Reporta u omite líneas duplicadas **adyacentes**. | `-c` (muestra el conteo de repeticiones) | Limpiar listas de elementos duplicados (requiere que la entrada esté ordenada con `sort` primero). |
+| **`grep`** | Imprime líneas que coincidan con un patrón (expresión regular). | `-v` (invierte la coincidencia), `-i` (ignora mayúsculas/minúsculas) | **El filtro más usado.** Aislar y mostrar solo las líneas relevantes de un *log* grande. |
+| **`wc`** | Imprime el número de líneas, palabras y bytes. | `-l` (solo líneas), `-w` (solo palabras) | **Monitoreo Rápido:** Contar cuántas líneas/errores hay en un *log* (`grep ERROR log.txt | wc -l`). |
+| **`head`** | Imprime la **primera parte** de un archivo (por defecto, las 10 primeras líneas). | `-n N` (imprime las primeras N líneas) | Útil para inspecciones rápidas de configuración (`head -n 5 config.yaml`). |
+| **`tail`** | Imprime la **última parte** de un archivo (las 10 últimas líneas). | `-n N` (imprime las últimas N líneas), **`-f` (sigue el archivo en tiempo real)** | **CRÍTICO para Monitoreo:** El *flag* `-f` es esencial para seguir archivos de *log* que se actualizan constantemente en producción. |
+| **`tee`** | Lee de STDIN y escribe simultáneamente en STDOUT **y en uno o más archivos**. | `-a` (añade en lugar de sobrescribir) | **Duplicación de Output:** Se usa a menudo con `sudo` para escribir en archivos protegidos (`comando | sudo tee /etc/config`). También permite ver la salida mientras se registra en un archivo. |
